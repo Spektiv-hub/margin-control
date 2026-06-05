@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ============================================================
+       PAGE META  —  swap title/description for your own copy
+       ============================================================ -->
+  <title>by thechartsengineer — Application-Only Trading Coaching</title>
+  <meta name="description" content="A six-month, application-only private coaching program for serious traders. Real coaching, controlled emotions. Limited seats per cohort." />
+
+  <!-- ============================================================
+       FONTS
+       Display:   DM Serif Display   — serif display headlines + slogan
+       Body:      Inter              — everything else
+       Signature: Cormorant Garamond — elegant serif for "by thechartsengineer"
+       ============================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,500;1,600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- ============================================================
+       TAILWIND (CDN)
+       ============================================================ -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    // -------- Design tokens --------
+    // STRICTLY MONOCHROME. No gold, no color accents anywhere in the UI.
+    // White (`paper`) is the only emphasis.
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink:   '#0A0A0A', // near-black background (our "black")
+            paper: '#F5F5F0', // off-white text + the only accent (our "white")
+          },
+          fontFamily: {
+            display: ['"DM Serif Display"', 'serif'],     // display headlines + slogan
+            sans:    ['Inter', 'sans-serif'],            // body
+            serif:   ['"Cormorant Garamond"', 'serif'],  // the signature line
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ============================================================
+       CUSTOM STYLES
+       Display-font tuning, the fixed page background (faint grayscale war
+       photo + barely-there grain, near-black), and the hairline divider.
+       ============================================================ -->
+  <style>
+    /* Tighten the condensed display font and give it presence */
+    .font-display { letter-spacing: 0.01em; line-height: 0.90; }
+
+    /* The signature line under the portrait */
+    .signature { letter-spacing: 0.04em; }
+
+    /* Hero slogan — DM Serif Display, forced directly here (with !important)
+       so it always wins over any other font/utility still on the element.
+       Large + cinematic; tweak letter-spacing / line-height to taste. */
+    .slogan-hero {
+      font-family: 'DM Serif Display', serif !important;
+      font-weight: 400 !important;       /* DM Serif Display ships a single weight */
+      text-transform: uppercase !important;
+      letter-spacing: 0;                 /* serif display reads better without tight tracking */
+      line-height: 0.95;
+    }
+
+    /* Faint neutral glow keeps near-black sections from reading flat (no color) */
+    .cinematic-glow {
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(245,245,240,0.04), transparent 60%),
+        #0A0A0A;
+    }
+
+    /* Hairline divider used between sections */
+    .hairline {
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(245,245,240,0.12), transparent);
+    }
+
+    /* ==========================================================
+       HERO BACKGROUND  (scoped to the HERO ONLY — every section below
+       the hero is plain solid black with no image).
+       Fabervaale-style letterbox: the faint grayscale war photo sits in
+       a narrower CENTRE COLUMN with solid-black pillarbox bars down both
+       sides, and the centre fades to pure black so Steven stands against
+       black while the photo reads toward the edges. Layer order inside
+       the column, bottom -> top:
+         1) .page-bg-img      faint grayscale war photo
+         2) .hero-center-fade centre + bottom fade to black
+       Plus a barely-there .war-grain over the whole hero.
+       ========================================================== */
+
+    /* 1) WAR PHOTO — faint grayscale, kept DEEP so it reads as atmosphere,
+       not a loud photo. VISIBILITY KNOBS: opacity / brightness (keep low
+       for the dark, restrained Fabervaale look). */
+    .page-bg-img {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      filter: grayscale(1) brightness(0.38) contrast(1.05);
+      opacity: 0.26;                 /* <- BACKGROUND VISIBILITY knob (low = darker/cleaner) */
+    }
+
+    /* 2) CENTRE FADE — blacks out the middle (behind Steven) and the bottom
+       of the column with the ink colour (rgb 10,10,10) so it matches the
+       pillarbox bars seamlessly; the photo stays visible toward the edges.
+       KNOBS: move "at 50% NN%" to follow Steven's head/torso; raise alphas
+       to darken the centre further. */
+    .hero-center-fade {
+      position: absolute; inset: 0;
+      background:
+        /* bottom of the column fades to solid black */
+        linear-gradient(to bottom, transparent 58%, #0A0A0A 100%),
+        /* SOLID black core directly behind Steven, blending OUT to the
+           visible photo toward the edges. Tighter radii + a hard 0A0A0A
+           core (0–24%) guarantee real contrast (no uniform wash).
+           KNOB: "at 50% NN%" follows his torso; first two stops size the
+           pure-black core; widen 40%/46% to grow the dark zone. */
+        radial-gradient(ellipse 40% 50% at 50% 40%,
+          #0A0A0A 0%,
+          #0A0A0A 28%,
+          rgba(10,10,10,0.85) 50%,
+          rgba(10,10,10,0.40) 74%,
+          rgba(10,10,10,0) 100%);
+    }
+
+    /* 3) GRAIN — barely-there texture (kept very low for the clean look) */
+    .war-grain {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+      opacity: 0.03;            /* grain strength — keep low for the clean Fabervaale look */
+    }
+
+    /* Steven cutout: NO frame/box. Mask fades his lower edge into the page
+       (this is the "soft dark gradient at his base"). Tune the 68%/100%
+       stops to move where the fade starts. */
+    .hero-figure {
+      -webkit-mask-image: linear-gradient(to bottom, #000 68%, rgba(0,0,0,0) 100%);
+              mask-image: linear-gradient(to bottom, #000 68%, rgba(0,0,0,0) 100%);
+    }
+
+    /* Accessibility: kill motion for users who ask for it */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+    }
+  </style>
+</head>
+
+<!-- ink background, paper text, body font by default -->
+<body class="bg-ink text-paper font-sans antialiased selection:bg-paper/20">
+
+  <!-- The page is plain solid black (body bg-ink). The atmospheric war
+       photo lives ONLY inside the hero (see the .hero-bg layer below);
+       every section beneath the hero is just this solid-black body. -->
+
+  <!-- ============================================================
+       1) HERO
+       Two columns on desktop:
+         LEFT  — portrait + "by thechartsengineer" + single "Enroll Now" button
+         RIGHT — stacked display headline, slogan, subhead (no button)
+       On mobile they stack (image first, prominent).
+       ============================================================ -->
+  <header class="relative w-full min-h-screen overflow-hidden flex items-center">
+
+    <!-- HERO BACKGROUND — the war photo lives ONLY here. The photo spans the
+         FULL width of the hero (edge to edge, no side bars), and
+         .hero-center-fade blacks out the middle so Steven stands against pure
+         black while the photo reads toward the edges. -->
+    <div class="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+      <!-- Photo fills the entire hero, full-bleed (no letterbox margins). -->
+      <div class="absolute inset-0">
+        <img src="assets/wallstreet-bg.png" alt="" class="page-bg-img" />
+        <div class="hero-center-fade"></div>
+      </div>
+      <!-- Barely-there grain across the whole hero -->
+      <div class="war-grain"></div>
+    </div>
+
+    <!-- ---------- HERO CONTENT (figure + split tagline + card below) ---------- -->
+    <div class="relative z-10 mx-auto w-full max-w-6xl px-6 py-16 sm:px-8 sm:py-20">
+
+      <!-- HERO COMPOSITION — ONE coherent container that reflows as a unit.
+           • Base (mobile + tablet, < lg): a plain flex COLUMN. Children stack
+             in DOM order, centered, with NOTHING absolutely positioned — so it
+             can never jump or overlap. Reading order:
+               tagline → tagline → Steven → "by thechartsengineer" → card.
+           • lg+ : the non-image pieces switch to absolute positioning to form
+             the flanking composition (taglines beside Steven's head, Steven
+             centered, card overlapping his lower body, signature below it).
+             The IMAGE is the only element that stays in normal flow at lg, so
+             it alone defines the container height; the figure is raised
+             (-translate-y) while the card + signature are counter-translated
+             (+translate-y) so they hold their spot. -->
+      <div class="relative mx-auto flex w-full max-w-5xl flex-col items-center
+                  lg:block lg:-translate-y-[10vh]">
+
+        <!-- Tagline, LEFT half. Base: centered, in flow. lg: flanks the head,
+             right-aligned, hugging Steven. DM Serif Display, sentence case. -->
+        <span class="whitespace-nowrap text-center font-display text-paper
+                     text-xl sm:text-2xl lg:text-3xl
+                     lg:absolute lg:left-[14%] lg:top-[20%] lg:z-20 lg:max-w-none lg:-translate-y-1/2 lg:text-right">
+          The edge isn't found,
+        </span>
+
+        <!-- Tagline, RIGHT half. Base: centered, in flow (always renders).
+             lg: flanks the head at the same level, left-aligned. -->
+        <span class="mt-1 whitespace-nowrap text-center font-display text-[#C8102E]
+                     text-xl sm:text-2xl lg:text-3xl
+                     lg:absolute lg:right-[14%] lg:top-[20%] lg:z-20 lg:mt-0 lg:max-w-none lg:-translate-y-1/2 lg:text-left">
+          It's engineered.
+        </span>
+
+        <!-- Steven CUTOUT — the ONLY element kept in normal flow at lg (it sets
+             the container height). Centered; base fades out.
+             SWAP IMAGE: change the src below to use a different cutout. -->
+        <img src="assets/stevo-no-bg.png"
+             alt="Steven, founder and head coach of the program, full-length portrait"
+             class="hero-figure relative z-10 mx-auto mt-4 h-[46vh] w-auto object-contain object-bottom sm:h-[56vh] lg:mt-0 lg:h-[76vh]" />
+
+        <!-- Signature — Cormorant Garamond italic. Base: sits between Steven and
+             the card. lg: absolutely placed just BELOW the card (counter-
+             translated +10vh so it stays put while the figure is raised). -->
+        <p class="signature mt-6 text-center font-serif text-base italic text-paper/70 sm:text-lg
+                  lg:absolute lg:bottom-[4%] lg:left-1/2 lg:z-30 lg:mt-0 lg:-translate-x-1/2 lg:translate-y-[10vh]">
+          by thechartsengineer
+        </p>
+
+        <!-- ---------- CARD ----------
+             Base (< lg): normal flow, centered — stacks cleanly under the
+             signature. lg: absolutely centered over Steven's lower body
+             (counter-translated +10vh so it holds its spot while the figure is
+             raised). Opaque dark panel, crisp edge.
+             KNOB: lg:bottom-[…] slides the card up/down his body. -->
+        <div class="relative z-30 mx-auto mt-6 w-full max-w-xs sm:max-w-sm
+                    lg:absolute lg:left-1/2 lg:bottom-[10%] lg:mt-0 lg:w-[22rem] lg:max-w-none lg:-translate-x-1/2 lg:translate-y-[10vh]">
+
+          <!-- The panel: solid/opaque dark fill (bg-ink — no figure shows
+               through) with a CRISP edge — hairline border + a subtle inset
+               glow ring + a tight, low-opacity shadow. -->
+          <div class="rounded-2xl border border-paper/20 bg-ink px-6 py-7 text-center
+                      ring-1 ring-inset ring-paper/[0.06]
+                      shadow-[0_4px_16px_rgba(0,0,0,0.45)]">
+
+            <!-- Headline — DM Serif Display (the slogan now lives here) -->
+            <h2 class="font-display text-2xl leading-[1.08] text-paper sm:text-3xl">
+              Real coaching, controlled emotions
+            </h2>
+
+            <!-- Supporting line — smaller, muted (placeholder copy) -->
+            <p class="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-paper/55">
+              Six months. One mentor. Total focus.
+            </p>
+
+            <!-- CTA — full-width white button, black text. Opens the application modal. -->
+            <button type="button" id="enrollBtn"
+               class="mt-6 flex w-full items-center justify-center rounded-sm bg-paper px-8 py-3 text-sm font-semibold uppercase tracking-wider text-ink transition-colors duration-200 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-paper focus-visible:ring-offset-2 focus-visible:ring-offset-ink">
+              Enroll Now
+            </button>
+
+            <!-- Status / countdown — styled placeholder, muted (no real timer yet) -->
+            <p class="mt-4 text-[11px] uppercase tracking-[0.22em] text-paper/40">
+              Next cohort opens in [SET COUNTDOWN]
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ============================================================
+       2) RESULTS / PROOF
+       Styled but DELIBERATELY EMPTY placeholder cards.
+       Replace each card with a real, verifiable student result.
+       Do NOT ship invented numbers or testimonials.
+       ============================================================ -->
+  <section class="relative mx-auto max-w-6xl px-6 py-28 sm:px-8 sm:py-36">
+    <div class="text-center">
+      <p class="mb-6 text-xs font-medium uppercase tracking-[0.35em] text-paper/50">
+        Results
+      </p>
+      <h2 class="font-display text-4xl uppercase leading-tight text-paper sm:text-6xl">
+        Proof, not promises.
+      </h2>
+      <p class="mx-auto mt-6 max-w-xl text-base leading-relaxed text-paper/60 sm:text-lg">
+        Verified student outcomes will be published here. Until then, these slots
+        are intentionally left blank.
+      </p>
+    </div>
+
+    <!-- Placeholder grid. Each card is a clearly-labeled empty slot.
+         Duplicate a card to add more. Replace the inner content with
+         a real result (screenshot, verified stat, named testimonial). -->
+    <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+      <!-- RESULT CARD (placeholder) — copy this block to add more -->
+      <article class="flex flex-col rounded-sm border border-dashed border-paper/20 bg-paper/[0.02] p-6">
+        <!-- faux chart area, purely decorative placeholder (monochrome) -->
+        <div class="mb-5 flex h-28 items-end gap-1.5" aria-hidden="true">
+          <span class="w-full bg-paper/10" style="height:40%"></span>
+          <span class="w-full bg-paper/15" style="height:65%"></span>
+          <span class="w-full bg-paper/25" style="height:50%"></span>
+          <span class="w-full bg-paper/15" style="height:80%"></span>
+          <span class="w-full bg-paper/25" style="height:70%"></span>
+          <span class="w-full bg-paper/30" style="height:100%"></span>
+        </div>
+        <span class="inline-block self-start rounded-sm border border-paper/40 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-paper/70">
+          Placeholder
+        </span>
+        <p class="mt-4 text-sm font-medium leading-relaxed text-paper/70">
+          [STUDENT RESULT — REPLACE WITH VERIFIED DATA]
+        </p>
+        <p class="mt-2 text-xs leading-relaxed text-paper/35">
+          Add a verifiable outcome and the student's name/handle here.
+        </p>
+      </article>
+
+      <!-- RESULT CARD (placeholder) -->
+      <article class="flex flex-col rounded-sm border border-dashed border-paper/20 bg-paper/[0.02] p-6">
+        <div class="mb-5 flex h-28 items-end gap-1.5" aria-hidden="true">
+          <span class="w-full bg-paper/10" style="height:55%"></span>
+          <span class="w-full bg-paper/25" style="height:45%"></span>
+          <span class="w-full bg-paper/15" style="height:70%"></span>
+          <span class="w-full bg-paper/15" style="height:60%"></span>
+          <span class="w-full bg-paper/25" style="height:85%"></span>
+          <span class="w-full bg-paper/30" style="height:95%"></span>
+        </div>
+        <span class="inline-block self-start rounded-sm border border-paper/40 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-paper/70">
+          Placeholder
+        </span>
+        <p class="mt-4 text-sm font-medium leading-relaxed text-paper/70">
+          [STUDENT RESULT — REPLACE WITH VERIFIED DATA]
+        </p>
+        <p class="mt-2 text-xs leading-relaxed text-paper/35">
+          Add a verifiable outcome and the student's name/handle here.
+        </p>
+      </article>
+
+      <!-- RESULT CARD (placeholder) -->
+      <article class="flex flex-col rounded-sm border border-dashed border-paper/20 bg-paper/[0.02] p-6">
+        <div class="mb-5 flex h-28 items-end gap-1.5" aria-hidden="true">
+          <span class="w-full bg-paper/10" style="height:35%"></span>
+          <span class="w-full bg-paper/15" style="height:50%"></span>
+          <span class="w-full bg-paper/25" style="height:60%"></span>
+          <span class="w-full bg-paper/15" style="height:55%"></span>
+          <span class="w-full bg-paper/25" style="height:75%"></span>
+          <span class="w-full bg-paper/30" style="height:90%"></span>
+        </div>
+        <span class="inline-block self-start rounded-sm border border-paper/40 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-paper/70">
+          Placeholder
+        </span>
+        <p class="mt-4 text-sm font-medium leading-relaxed text-paper/70">
+          [STUDENT RESULT — REPLACE WITH VERIFIED DATA]
+        </p>
+        <p class="mt-2 text-xs leading-relaxed text-paper/35">
+          Add a verifiable outcome and the student's name/handle here.
+        </p>
+      </article>
+
+    </div>
+
+    <!-- Honesty note — remove once real, compliant proof is in place -->
+    <p class="mx-auto mt-10 max-w-2xl text-center text-xs leading-relaxed text-paper/30">
+      [INTERNAL NOTE — REMOVE BEFORE LAUNCH] Only publish results you can verify
+      and that comply with your jurisdiction's advertising/financial-promotion rules.
+    </p>
+  </section>
+
+  <div class="mx-auto max-w-5xl px-6"><div class="hairline"></div></div>
+
+  <!-- ============================================================
+       5) FOOTER
+       Wordmark + risk disclosure (DRAFT — replace with the
+       lawyer-reviewed version before going live).
+       ============================================================ -->
+  <!-- Footer keeps a semi-transparent dark overlay (bg-ink/60) so the fixed
+       background still shows here, but the fine-print stays readable.
+       Raise toward bg-ink/80 if the legal text is hard to read. -->
+  <footer class="relative border-t border-paper/10 bg-ink/60 px-6 py-16 sm:px-8">
+    <div class="mx-auto max-w-5xl">
+
+      <!-- Wordmark / signature -->
+      <p class="font-serif text-2xl italic text-paper">
+        by thechartsengineer
+      </p>
+
+      <!-- Risk disclosure — DRAFT boilerplate -->
+      <div class="mt-8 space-y-4 text-xs leading-relaxed text-paper/40">
+        <p class="font-medium uppercase tracking-[0.2em] text-paper/55">
+          [DRAFT — REPLACE WITH LAWYER-REVIEWED DISCLOSURE]
+        </p>
+        <p>
+          <strong class="text-paper/60">Risk Disclosure.</strong>
+          Trading financial instruments carries a substantial level of risk and may
+          not be suitable for all investors. The high degree of leverage available can
+          work against you as well as for you. Before deciding to trade, carefully
+          consider your investment objectives, level of experience, and risk appetite.
+          You could sustain a loss of some or all of your initial capital; do not trade
+          with money you cannot afford to lose.
+        </p>
+        <p>
+          Past performance is not indicative of future results, and no representation is
+          made that any account will or is likely to achieve profits or losses similar
+          to those discussed or shown. This program is educational in nature and does
+          not constitute financial, investment, or trading advice. by thechartsengineer
+          is not a registered broker-dealer, investment adviser, or financial advisor.
+          You are solely responsible for your own trading decisions.
+        </p>
+      </div>
+
+      <!-- Copyright — year fills in automatically -->
+      <p class="mt-10 text-xs text-paper/30">
+        &copy; <span id="year">2026</span> thechartsengineer. All rights reserved.
+      </p>
+
+    </div>
+  </footer>
+
+  <!-- ============================================================
+       APPLICATION MODAL  —  opened by the hero "Enroll Now" button.
+       Matches the site: opaque dark card, hairline border, inset ring,
+       DM Serif Display heading, strictly black/white. Submits to the
+       /api/apply serverless function (Resend). Closes on X, on overlay
+       click, and on Escape.
+       ============================================================ -->
+  <div id="applyModal"
+       class="fixed inset-0 z-[100] hidden items-center justify-center px-4 py-6"
+       role="dialog" aria-modal="true" aria-labelledby="applyTitle">
+
+    <!-- Dimmed overlay (click-outside-to-close) -->
+    <div id="applyOverlay" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+    <!-- Card -->
+    <div class="relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl
+                border border-paper/20 bg-ink px-6 py-8 text-center
+                ring-1 ring-inset ring-paper/[0.06]
+                shadow-[0_8px_40px_rgba(0,0,0,0.6)] sm:px-8">
+
+      <!-- Close (X) -->
+      <button id="applyClose" type="button" aria-label="Close"
+              class="absolute right-4 top-4 flex h-8 w-8 items-center justify-center
+                     rounded-sm text-xl leading-none text-paper/50 transition-colors
+                     hover:text-paper focus:outline-none focus-visible:ring-1 focus-visible:ring-paper/50">
+        &times;
+      </button>
+
+      <!-- Heading — DM Serif Display -->
+      <h2 id="applyTitle" class="font-display text-2xl leading-[1.1] text-paper sm:text-3xl">
+        Apply for the Six-Month Program
+      </h2>
+
+      <!-- Form body (hidden & replaced by the success block on success) -->
+      <div id="applyBody">
+        <p class="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-paper/55">
+          Two details to begin. Every application is reviewed personally.
+        </p>
+
+        <form id="applyForm" class="mt-6 space-y-4 text-left" novalidate>
+          <div>
+            <label for="applyName" class="block text-[11px] font-medium uppercase tracking-[0.18em] text-paper/50">
+              Name
+            </label>
+            <input id="applyName" name="name" type="text" required autocomplete="name"
+                   placeholder="Your name"
+                   class="mt-2 w-full rounded-sm border border-paper/20 bg-paper/[0.04] px-4 py-3
+                          text-sm text-paper placeholder-paper/30 transition-colors
+                          focus:border-paper/50 focus:outline-none focus:ring-1 focus:ring-paper/40" />
+          </div>
+          <div>
+            <label for="applyEmail" class="block text-[11px] font-medium uppercase tracking-[0.18em] text-paper/50">
+              Email
+            </label>
+            <input id="applyEmail" name="email" type="email" required autocomplete="email"
+                   inputmode="email" placeholder="you@example.com"
+                   class="mt-2 w-full rounded-sm border border-paper/20 bg-paper/[0.04] px-4 py-3
+                          text-sm text-paper placeholder-paper/30 transition-colors
+                          focus:border-paper/50 focus:outline-none focus:ring-1 focus:ring-paper/40" />
+          </div>
+
+          <button id="applySubmit" type="submit"
+                  class="mt-2 flex w-full items-center justify-center rounded-sm bg-paper px-8 py-3
+                         text-sm font-semibold uppercase tracking-wider text-ink transition-colors
+                         duration-200 hover:bg-white focus:outline-none focus-visible:ring-2
+                         focus-visible:ring-paper focus-visible:ring-offset-2 focus-visible:ring-offset-ink
+                         disabled:cursor-not-allowed disabled:opacity-60">
+            <span id="applySubmitLabel">Submit Application</span>
+          </button>
+
+          <!-- Inline validation / error message -->
+          <p id="applyMessage" class="hidden text-center text-sm" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <!-- Success block (shown after a successful submit) -->
+      <div id="applySuccess" class="hidden">
+        <p class="mx-auto mt-6 max-w-sm font-display text-xl leading-snug text-paper">
+          Application received — we'll be in touch.
+        </p>
+        <p class="mx-auto mt-3 max-w-xs text-sm leading-relaxed text-paper/55">
+          Keep an eye on your inbox. Every application is reviewed personally.
+        </p>
+        <button id="applyDone" type="button"
+                class="mt-6 flex w-full items-center justify-center rounded-sm bg-paper px-8 py-3
+                       text-sm font-semibold uppercase tracking-wider text-ink transition-colors
+                       duration-200 hover:bg-white focus:outline-none focus-visible:ring-2
+                       focus-visible:ring-paper focus-visible:ring-offset-2 focus-visible:ring-offset-ink">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       SCRIPTS  —  vanilla JS, no dependencies
+       Footer year + application modal logic.
+       ============================================================ -->
+  <script>
+    // ---- Auto-update footer year ----
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ---- Application modal ----
+    (function () {
+      const modal       = document.getElementById('applyModal');
+      const openBtn     = document.getElementById('enrollBtn');
+      const closeBtn    = document.getElementById('applyClose');
+      const overlay     = document.getElementById('applyOverlay');
+      const form        = document.getElementById('applyForm');
+      const body        = document.getElementById('applyBody');
+      const success     = document.getElementById('applySuccess');
+      const doneBtn     = document.getElementById('applyDone');
+      const submitBtn   = document.getElementById('applySubmit');
+      const submitLabel = document.getElementById('applySubmitLabel');
+      const message     = document.getElementById('applyMessage');
+      const nameInput   = document.getElementById('applyName');
+      const emailInput  = document.getElementById('applyEmail');
+
+      const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      function showMessage(text, isError) {
+        message.textContent = text;
+        message.classList.remove('hidden');
+        message.style.color = isError ? '#C8102E' : 'rgba(245,245,240,0.7)';
+      }
+      function clearMessage() {
+        message.textContent = '';
+        message.classList.add('hidden');
+      }
+      function resetForm() {
+        body.classList.remove('hidden');
+        success.classList.add('hidden');
+        submitBtn.disabled = false;
+        submitLabel.textContent = 'Submit Application';
+        clearMessage();
+      }
+
+      function openModal() {
+        resetForm();
+        form.reset();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => nameInput.focus(), 50);
+      }
+      function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+      }
+
+      openBtn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+      overlay.addEventListener('click', closeModal);
+      doneBtn.addEventListener('click', closeModal);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name  = nameInput.value.trim();
+        const email = emailInput.value.trim();
+        clearMessage();
+
+        if (!name) { showMessage('Please enter your name.', true); nameInput.focus(); return; }
+        if (!EMAIL_RE.test(email)) { showMessage('Please enter a valid email address.', true); emailInput.focus(); return; }
+
+        submitBtn.disabled = true;
+        submitLabel.textContent = 'Submitting…';
+
+        try {
+          const res = await fetch('/api/apply', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email }),
+          });
+          if (!res.ok) {
+            let msg = 'Something went wrong. Please try again.';
+            try { const data = await res.json(); if (data && data.error) msg = data.error; } catch (_) {}
+            throw new Error(msg);
+          }
+          // Success — swap form for the confirmation message.
+          body.classList.add('hidden');
+          success.classList.remove('hidden');
+        } catch (err) {
+          submitBtn.disabled = false;
+          submitLabel.textContent = 'Submit Application';
+          showMessage(err.message || 'Something went wrong. Please try again.', true);
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
