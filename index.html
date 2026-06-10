@@ -190,11 +190,74 @@
     }
     #termsContent .terms-h:first-child { margin-top: 0; }
 
-    /* Accessibility: kill motion for users who ask for it */
+    /* ==========================================================
+       ENTRANCE + SCROLL ANIMATIONS
+       Slow, restrained, cinematic (Fabervaale-style). The "rise"
+       and figure animations drive the independent `translate` /
+       `scale` CSS properties (NOT `transform`), so they COMPOSE with
+       the Tailwind `transform` utilities that build the responsive
+       hero layout instead of overriding them — the layout is never
+       altered at any width. Animations run ONCE (CSS load animations
+       + an IntersectionObserver that unobserves after revealing).
+       prefers-reduced-motion disables them entirely (see below).
+       ========================================================== */
+
+    @keyframes mcFade   { from { opacity: 0; }                         to { opacity: 1; } }
+    @keyframes mcRise   { from { opacity: 0; translate: 0 20px; }      to { opacity: 1; translate: 0 0; } }
+    @keyframes mcFigure { from { opacity: 0; translate: 0 26px; scale: 0.97; }
+                          to   { opacity: 1; translate: 0 0;    scale: 1; } }
+
+    /* Shared: slow ease-out, hold the start state during the delay
+       (fill: both) so nothing flashes before its turn. */
+    .anim-bg, .anim-figure, .anim-rise, .anim-fade {
+      animation-duration: 1.1s;
+      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+      animation-fill-mode: both;
+    }
+    .anim-bg     { animation-name: mcFade;   animation-duration: 1.3s; }
+    .anim-figure { animation-name: mcFigure; animation-duration: 1.3s; animation-delay: 0.25s; }
+    .anim-rise   { animation-name: mcRise; }
+    .anim-fade   { animation-name: mcFade; }
+
+    /* Hero stagger — each piece arrives a beat after the previous. */
+    .anim-d1 { animation-delay: 0.70s; }  /* tagline 1            */
+    .anim-d2 { animation-delay: 0.80s; }  /* tagline 2            */
+    .anim-d3 { animation-delay: 1.05s; }  /* the card            */
+    .anim-d4 { animation-delay: 1.35s; }  /* signature + terms   */
+
+    /* Scroll reveal — gentle fade + rise as the element enters view.
+       Uses independent `translate` for the same compose-not-override
+       reason. `--reveal-delay` (set inline) staggers siblings. */
+    .reveal {
+      opacity: 0;
+      translate: 0 26px;
+      transition: opacity 1.1s cubic-bezier(0.22, 1, 0.36, 1),
+                  translate 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+      transition-delay: var(--reveal-delay, 0s);
+    }
+    .reveal.is-visible { opacity: 1; translate: 0 0; }
+
+    /* Accessibility: kill motion for users who ask for it. Everything
+       snaps to its final, fully-visible state — no fades, no movement. */
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
+      .anim-bg, .anim-figure, .anim-rise, .anim-fade {
+        animation: none !important;
+        opacity: 1 !important;
+        translate: none !important;
+        scale: none !important;
+      }
+      .reveal {
+        opacity: 1 !important;
+        translate: none !important;
+        transition: none !important;
+      }
     }
   </style>
+
+  <!-- If JS is disabled, IntersectionObserver never runs — make sure the
+       scroll-reveal content is fully visible instead of stuck at opacity 0. -->
+  <noscript><style>.reveal { opacity: 1 !important; translate: none !important; }</style></noscript>
 </head>
 
 <!-- ink background, paper text, body font by default -->
@@ -217,7 +280,7 @@
          FULL width of the hero (edge to edge, no side bars), and
          .hero-center-fade blacks out the middle so Steven stands against pure
          black while the photo reads toward the edges. -->
-    <div class="absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
+    <div class="anim-bg absolute inset-0 z-0 overflow-hidden" aria-hidden="true">
       <!-- Photo fills the entire hero, full-bleed (no letterbox margins). -->
       <div class="absolute inset-0">
         <img src="assets/wallstreet-bg.png" alt="" class="page-bg-img" />
@@ -247,7 +310,7 @@
 
         <!-- Tagline, LEFT half. Base: centered, in flow. lg: flanks the head,
              right-aligned, hugging Steven. DM Serif Display, sentence case. -->
-        <span class="whitespace-nowrap text-center font-display text-paper
+        <span class="anim-rise anim-d1 whitespace-nowrap text-center font-display text-paper
                      text-xl sm:text-2xl lg:text-3xl
                      lg:absolute lg:left-[14%] lg:top-[20%] lg:z-20 lg:max-w-none lg:-translate-y-1/2 lg:text-right">
           The edge isn't found,
@@ -255,7 +318,7 @@
 
         <!-- Tagline, RIGHT half. Base: centered, in flow (always renders).
              lg: flanks the head at the same level, left-aligned. -->
-        <span class="mt-1 whitespace-nowrap text-center font-display text-[#C8102E]
+        <span class="anim-rise anim-d2 mt-1 whitespace-nowrap text-center font-display text-[#C8102E]
                      text-xl sm:text-2xl lg:text-3xl
                      lg:absolute lg:right-[14%] lg:top-[20%] lg:z-20 lg:mt-0 lg:max-w-none lg:-translate-y-1/2 lg:text-left">
           It's engineered.
@@ -266,7 +329,7 @@
              SWAP IMAGE: change the src below to use a different cutout. -->
         <img src="assets/stevo-no-bg.png"
              alt="Steven, founder and head coach of the program, full-length portrait"
-             class="hero-figure relative z-10 mx-auto mt-4 h-[46vh] w-auto object-contain object-bottom sm:h-[56vh] lg:mt-0 lg:h-[76vh]" />
+             class="anim-figure hero-figure relative z-10 mx-auto mt-4 h-[46vh] w-auto object-contain object-bottom sm:h-[56vh] lg:mt-0 lg:h-[76vh]" />
 
         <!-- Signature + Terms link. Base (stacked column): `order-last` forces this
              wrapper BELOW the card in the flex flow, regardless of its DOM position —
@@ -275,7 +338,7 @@
              wrapper is absolutely placed just BELOW the card (counter-translated +14vh
              so it stays put while the figure is raised). The wrapper carries the
              positioning so the Terms link always sits directly under the signature. -->
-        <div class="order-last mt-6 text-center lg:absolute lg:bottom-[4%] lg:left-1/2 lg:z-30 lg:mt-0 lg:-translate-x-1/2 lg:translate-y-[14vh]">
+        <div class="anim-fade anim-d4 order-last mt-6 text-center lg:absolute lg:bottom-[4%] lg:left-1/2 lg:z-30 lg:mt-0 lg:-translate-x-1/2 lg:translate-y-[14vh]">
           <!-- Signature — Cormorant Garamond italic -->
           <p class="signature font-serif text-base italic text-paper/70 sm:text-lg">
             by thechartsengineer
@@ -295,7 +358,7 @@
              (counter-translated +10vh so it holds its spot while the figure is
              raised). Opaque dark panel, crisp edge.
              KNOB: lg:bottom-[…] slides the card up/down his body. -->
-        <div class="relative z-30 mx-auto -mt-[13vh] w-full max-w-xs sm:-mt-[16vh] sm:max-w-sm
+        <div class="anim-rise anim-d3 relative z-30 mx-auto -mt-[13vh] w-full max-w-xs sm:-mt-[16vh] sm:max-w-sm
                     lg:absolute lg:left-1/2 lg:bottom-[10%] lg:mt-0 lg:w-[22rem] lg:max-w-none lg:-translate-x-1/2 lg:translate-y-[10vh]">
 
           <!-- The panel: solid/opaque dark fill (bg-ink — no figure shows
@@ -360,7 +423,7 @@
            ============================================================ -->
 
       <!-- Testimonial -->
-      <article class="testimonial-card">
+      <article class="testimonial-card reveal" style="--reveal-delay: 0s">
         <p class="testimonial-quote">
           I've been part of Steven's trading community for around five years. I started
           with no trading knowledge and joined his first bootcamp, which completely changed
@@ -375,7 +438,7 @@
       </article>
 
       <!-- Testimonial -->
-      <article class="testimonial-card">
+      <article class="testimonial-card reveal" style="--reveal-delay: 0.12s">
         <p class="testimonial-quote">
           Joining Steven's community was the best decision I had ever made! Before I met him
           no one had made me understand the market like he did, and with his system I became
@@ -386,7 +449,7 @@
       </article>
 
       <!-- Testimonial -->
-      <article class="testimonial-card">
+      <article class="testimonial-card reveal" style="--reveal-delay: 0.24s">
         <p class="testimonial-quote">
           Since starting this 6-month program, I have developed a completely different approach
           to trading, and the experience has been excellent so far. The program is highly
@@ -401,7 +464,7 @@
       </article>
 
       <!-- Testimonial (FRENCH — kept in French exactly as written; do not translate) -->
-      <article class="testimonial-card">
+      <article class="testimonial-card reveal" style="--reveal-delay: 0.36s">
         <p class="testimonial-quote">
           Enfin trouvé la bonne personne pour apprendre le trading ! Steven est humain, honnête
           et respectueux. Il m'a enseigné des stratégies claires qui ont complètement changé ma
@@ -431,7 +494,7 @@
   <section id="mentor" class="relative mx-auto max-w-3xl px-6 py-28 text-center sm:py-36">
 
     <!-- Heading — DM Serif Display -->
-    <h2 class="font-display text-4xl uppercase leading-tight text-paper sm:text-6xl">
+    <h2 class="reveal font-display text-4xl uppercase leading-tight text-paper sm:text-6xl" style="--reveal-delay: 0s">
       Meet Your Mentor
     </h2>
 
@@ -439,15 +502,15 @@
          SWAP IMAGE: change the src below to use a different headshot. -->
     <img src="assets/steven-headshot.png"
          alt="Steven Khally, professional trader and founder of Treasures Funding, head-and-shoulders portrait"
-         class="mx-auto mt-12 w-56 rounded-2xl border border-paper/15 object-cover shadow-[0_10px_40px_rgba(0,0,0,0.55)] sm:w-64" />
+         class="reveal mx-auto mt-12 w-56 rounded-2xl border border-paper/15 object-cover shadow-[0_10px_40px_rgba(0,0,0,0.55)] sm:w-64" style="--reveal-delay: 0.12s" />
 
     <!-- Name -->
-    <p class="mt-8 font-display text-2xl text-paper sm:text-3xl">
+    <p class="reveal mt-8 font-display text-2xl text-paper sm:text-3xl" style="--reveal-delay: 0.24s">
       Steven Khally
     </p>
 
     <!-- Bio — readable body font, capped line length, centered -->
-    <p class="mx-auto mt-5 max-w-[660px] text-base leading-relaxed text-paper/70">
+    <p class="reveal mx-auto mt-5 max-w-[660px] text-base leading-relaxed text-paper/70" style="--reveal-delay: 0.36s">
       Steven Khally is a professional trader with over 6 years of experience in the
       financial markets and 4 years dedicated to trading education, having personally
       mentored over 400 students through private coaching programs. He started out as a
@@ -764,6 +827,33 @@
   <script>
     // ---- Auto-update footer year ----
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ---- Scroll reveals (testimonials + Meet Your Mentor) ----
+    // Each `.reveal` gently fades + rises in ONCE as it enters view. We
+    // unobserve after revealing so it never re-triggers on later scrolls.
+    // Honors prefers-reduced-motion and degrades safely if the browser
+    // lacks IntersectionObserver — both just show everything immediately.
+    (function () {
+      const reveals = document.querySelectorAll('.reveal');
+      if (!reveals.length) return;
+
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || !('IntersectionObserver' in window)) {
+        reveals.forEach((el) => el.classList.add('is-visible'));
+        return;
+      }
+
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15, rootMargin: '0px 0px -10% 0px' });
+
+      reveals.forEach((el) => io.observe(el));
+    })();
 
     // ---- Application modal ----
     (function () {
