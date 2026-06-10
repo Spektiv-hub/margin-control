@@ -145,6 +145,51 @@
               mask-image: linear-gradient(to bottom, #000 68%, rgba(0,0,0,0) 100%);
     }
 
+    /* ==========================================================
+       TESTIMONIAL CARDS — static (no animation). The cards are laid
+       out in a simple responsive grid via Tailwind utilities on the
+       section (2-up on desktop, stacked on mobile); these rules only
+       style each card. Add a card by copying an <article> — see the
+       HTML. NOTE: equal-height rows are intentional (grid stretch).
+       ========================================================== */
+    .testimonial-card {
+      border: 1px solid rgba(245,245,240,0.14);
+      background: rgba(245,245,240,0.025);
+      border-radius: 0.85rem;
+      padding: 1.9rem 1.9rem 1.6rem;
+    }
+    .testimonial-quote {
+      font-size: 1rem;
+      line-height: 1.75;
+      color: rgba(245,245,240,0.82);
+    }
+    .testimonial-name {
+      margin-top: 1.4rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(245,245,240,0.5);
+    }
+    .testimonial-name::before { content: "— "; }
+
+    /* ==========================================================
+       TERMS & CONDITIONS MODAL — body typography. Section headings
+       (.terms-h) and paragraphs use the clean body font; only the
+       modal TITLE uses DM Serif Display (see the markup).
+       ========================================================== */
+    #termsContent p { margin-bottom: 1rem; }
+    #termsContent > p:last-child { margin-bottom: 0; }
+    #termsContent strong { color: rgba(245,245,240,0.92); font-weight: 600; }
+    #termsContent .terms-h {
+      margin-top: 1.6rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      color: rgba(245,245,240,0.92);
+    }
+    #termsContent .terms-h:first-child { margin-top: 0; }
+
     /* Accessibility: kill motion for users who ask for it */
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
@@ -223,21 +268,34 @@
              alt="Steven, founder and head coach of the program, full-length portrait"
              class="hero-figure relative z-10 mx-auto mt-4 h-[46vh] w-auto object-contain object-bottom sm:h-[56vh] lg:mt-0 lg:h-[76vh]" />
 
-        <!-- Signature — Cormorant Garamond italic. Base: sits between Steven and
-             the card. lg: absolutely placed just BELOW the card (counter-
-             translated +10vh so it stays put while the figure is raised). -->
-        <p class="signature mt-6 text-center font-serif text-base italic text-paper/70 sm:text-lg
-                  lg:absolute lg:bottom-[4%] lg:left-1/2 lg:z-30 lg:mt-0 lg:-translate-x-1/2 lg:translate-y-[10vh]">
-          by thechartsengineer
-        </p>
+        <!-- Signature + Terms link. Base (stacked column): `order-last` forces this
+             wrapper BELOW the card in the flex flow, regardless of its DOM position —
+             so the order stays Steven → card → byline → Terms at every narrow width.
+             lg: the parent becomes `display:block` (so `order` is ignored) and this
+             wrapper is absolutely placed just BELOW the card (counter-translated +14vh
+             so it stays put while the figure is raised). The wrapper carries the
+             positioning so the Terms link always sits directly under the signature. -->
+        <div class="order-last mt-6 text-center lg:absolute lg:bottom-[4%] lg:left-1/2 lg:z-30 lg:mt-0 lg:-translate-x-1/2 lg:translate-y-[14vh]">
+          <!-- Signature — Cormorant Garamond italic -->
+          <p class="signature font-serif text-base italic text-paper/70 sm:text-lg">
+            by thechartsengineer
+          </p>
+          <!-- Terms & Conditions link — fine print, intentionally subtle (must not
+               compete with Enroll Now). Opens the Terms modal below. -->
+          <button type="button" id="termsBtn"
+                  class="mt-1.5 text-[10px] uppercase tracking-[0.18em] text-paper/35 underline decoration-paper/20 underline-offset-4 transition-colors hover:text-paper/65 focus:outline-none focus-visible:ring-1 focus-visible:ring-paper/40">
+            Terms &amp; Conditions
+          </button>
+        </div>
 
         <!-- ---------- CARD ----------
-             Base (< lg): normal flow, centered — stacks cleanly under the
-             signature. lg: absolutely centered over Steven's lower body
+             Base (< lg): normal flow, centered — sits directly under Steven, ABOVE
+             the byline (the byline wrapper is forced below via `order-last`).
+             lg: absolutely centered over Steven's lower body
              (counter-translated +10vh so it holds its spot while the figure is
              raised). Opaque dark panel, crisp edge.
              KNOB: lg:bottom-[…] slides the card up/down his body. -->
-        <div class="relative z-30 mx-auto mt-6 w-full max-w-xs sm:max-w-sm
+        <div class="relative z-30 mx-auto -mt-[13vh] w-full max-w-xs sm:-mt-[16vh] sm:max-w-sm
                     lg:absolute lg:left-1/2 lg:bottom-[10%] lg:mt-0 lg:w-[22rem] lg:max-w-none lg:-translate-x-1/2 lg:translate-y-[10vh]">
 
           <!-- The panel: solid/opaque dark fill (bg-ink — no figure shows
@@ -262,11 +320,6 @@
                class="mt-6 flex w-full items-center justify-center rounded-sm bg-paper px-8 py-3 text-sm font-semibold uppercase tracking-wider text-ink transition-colors duration-200 hover:bg-white focus:outline-none focus-visible:ring-2 focus-visible:ring-paper focus-visible:ring-offset-2 focus-visible:ring-offset-ink">
               Enroll Now
             </button>
-
-            <!-- Status / countdown — styled placeholder, muted (no real timer yet) -->
-            <p class="mt-4 text-[11px] uppercase tracking-[0.22em] text-paper/40">
-              Next cohort opens in [SET COUNTDOWN]
-            </p>
           </div>
         </div>
       </div>
@@ -275,100 +328,134 @@
   </header>
 
   <!-- ============================================================
-       2) RESULTS / PROOF
-       Styled but DELIBERATELY EMPTY placeholder cards.
-       Replace each card with a real, verifiable student result.
-       Do NOT ship invented numbers or testimonials.
+       2) TESTIMONIALS
+       REAL, student-supplied testimonials as STATIC cards (no
+       animation, no carousel). Quote + name only — no photos, no
+       result numbers. Responsive grid: 2-up on desktop, stacked on
+       mobile. To add more, see the marked card list below.
        ============================================================ -->
-  <section class="relative mx-auto max-w-6xl px-6 py-28 sm:px-8 sm:py-36">
+  <section id="testimonials" class="relative mx-auto max-w-4xl px-6 py-28 sm:py-36">
     <div class="text-center">
       <p class="mb-6 text-xs font-medium uppercase tracking-[0.35em] text-paper/50">
-        Results
+        Testimonials
       </p>
       <h2 class="font-display text-4xl uppercase leading-tight text-paper sm:text-6xl">
-        Proof, not promises.
+        What students say
       </h2>
-      <p class="mx-auto mt-6 max-w-xl text-base leading-relaxed text-paper/60 sm:text-lg">
-        Verified student outcomes will be published here. Until then, these slots
-        are intentionally left blank.
-      </p>
     </div>
 
-    <!-- Placeholder grid. Each card is a clearly-labeled empty slot.
-         Duplicate a card to add more. Replace the inner content with
-         a real result (screenshot, verified stat, named testimonial). -->
-    <div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <!-- Static grid: stacked on mobile, 2 per row on desktop (sm+). -->
+    <div class="mt-14 grid gap-6 sm:grid-cols-2">
 
-      <!-- RESULT CARD (placeholder) — copy this block to add more -->
-      <article class="flex flex-col rounded-sm border border-dashed border-paper/20 bg-paper/[0.02] p-6">
-        <!-- faux chart area, purely decorative placeholder (monochrome) -->
-        <div class="mb-5 flex h-28 items-end gap-1.5" aria-hidden="true">
-          <span class="w-full bg-paper/10" style="height:40%"></span>
-          <span class="w-full bg-paper/15" style="height:65%"></span>
-          <span class="w-full bg-paper/25" style="height:50%"></span>
-          <span class="w-full bg-paper/15" style="height:80%"></span>
-          <span class="w-full bg-paper/25" style="height:70%"></span>
-          <span class="w-full bg-paper/30" style="height:100%"></span>
-        </div>
-        <span class="inline-block self-start rounded-sm border border-paper/40 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-paper/70">
-          Placeholder
-        </span>
-        <p class="mt-4 text-sm font-medium leading-relaxed text-paper/70">
-          [STUDENT RESULT — REPLACE WITH VERIFIED DATA]
+      <!-- ============================================================
+           TESTIMONIAL CARDS  —  ➕ ADD NEW TESTIMONIALS HERE.
+           To add one: copy a single <article class="testimonial-card">
+           block below, paste it into this grid, and change the quote
+           text and the name. Keep the exact format:
+               quote → <p class="testimonial-quote">…</p>
+               name  → <footer class="testimonial-name">Name</footer>
+                       (name only; add a location like "Name · UAE" if you have one)
+           Cards flow into the grid automatically (2 per row on desktop,
+           stacked on mobile) in source order — nothing else to edit.
+           ============================================================ -->
+
+      <!-- Testimonial -->
+      <article class="testimonial-card">
+        <p class="testimonial-quote">
+          I've been part of Steven's trading community for around five years. I started
+          with no trading knowledge and joined his first bootcamp, which completely changed
+          my understanding of the markets. I later participated in multiple mentorships,
+          signal groups, and trainings, which helped me build real skills and consistency in
+          trading. Steven's constant support and involvement made the experience feel like a
+          real community rather than just a course. Through this journey, I achieved meaningful
+          progress in trading and developed strong discipline. I highly recommend his community
+          to anyone serious about learning trading the right way.
         </p>
-        <p class="mt-2 text-xs leading-relaxed text-paper/35">
-          Add a verifiable outcome and the student's name/handle here.
-        </p>
+        <footer class="testimonial-name">Nabil Chammas</footer>
       </article>
 
-      <!-- RESULT CARD (placeholder) -->
-      <article class="flex flex-col rounded-sm border border-dashed border-paper/20 bg-paper/[0.02] p-6">
-        <div class="mb-5 flex h-28 items-end gap-1.5" aria-hidden="true">
-          <span class="w-full bg-paper/10" style="height:55%"></span>
-          <span class="w-full bg-paper/25" style="height:45%"></span>
-          <span class="w-full bg-paper/15" style="height:70%"></span>
-          <span class="w-full bg-paper/15" style="height:60%"></span>
-          <span class="w-full bg-paper/25" style="height:85%"></span>
-          <span class="w-full bg-paper/30" style="height:95%"></span>
-        </div>
-        <span class="inline-block self-start rounded-sm border border-paper/40 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-paper/70">
-          Placeholder
-        </span>
-        <p class="mt-4 text-sm font-medium leading-relaxed text-paper/70">
-          [STUDENT RESULT — REPLACE WITH VERIFIED DATA]
+      <!-- Testimonial -->
+      <article class="testimonial-card">
+        <p class="testimonial-quote">
+          Joining Steven's community was the best decision I had ever made! Before I met him
+          no one had made me understand the market like he did, and with his system I became
+          consistent and profitable. He taught me a long time ago and yet he's always here
+          offering help, checking in if I need any help — and that's what a true leader is.
         </p>
-        <p class="mt-2 text-xs leading-relaxed text-paper/35">
-          Add a verifiable outcome and the student's name/handle here.
-        </p>
+        <footer class="testimonial-name">Elena Khoury</footer>
       </article>
 
-      <!-- RESULT CARD (placeholder) -->
-      <article class="flex flex-col rounded-sm border border-dashed border-paper/20 bg-paper/[0.02] p-6">
-        <div class="mb-5 flex h-28 items-end gap-1.5" aria-hidden="true">
-          <span class="w-full bg-paper/10" style="height:35%"></span>
-          <span class="w-full bg-paper/15" style="height:50%"></span>
-          <span class="w-full bg-paper/25" style="height:60%"></span>
-          <span class="w-full bg-paper/15" style="height:55%"></span>
-          <span class="w-full bg-paper/25" style="height:75%"></span>
-          <span class="w-full bg-paper/30" style="height:90%"></span>
-        </div>
-        <span class="inline-block self-start rounded-sm border border-paper/40 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-paper/70">
-          Placeholder
-        </span>
-        <p class="mt-4 text-sm font-medium leading-relaxed text-paper/70">
-          [STUDENT RESULT — REPLACE WITH VERIFIED DATA]
+      <!-- Testimonial -->
+      <article class="testimonial-card">
+        <p class="testimonial-quote">
+          Since starting this 6-month program, I have developed a completely different approach
+          to trading, and the experience has been excellent so far. The program is highly
+          structured, with a clear focus on planning, execution, and building a disciplined
+          trading mindset. What stands out most is the continuous follow-up and support from
+          Steven throughout the journey, ensuring that concepts are not only understood but
+          effectively applied in practice. The guidance, accountability, and mentorship provided
+          make this a valuable program for anyone looking to develop consistency, confidence,
+          and professionalism in their trading.
         </p>
-        <p class="mt-2 text-xs leading-relaxed text-paper/35">
-          Add a verifiable outcome and the student's name/handle here.
-        </p>
+        <footer class="testimonial-name">Karim Ramadan · UAE</footer>
       </article>
+
+      <!-- Testimonial (FRENCH — kept in French exactly as written; do not translate) -->
+      <article class="testimonial-card">
+        <p class="testimonial-quote">
+          Enfin trouvé la bonne personne pour apprendre le trading ! Steven est humain, honnête
+          et respectueux. Il m'a enseigné des stratégies claires qui ont complètement changé ma
+          vision de la bourse. Sa méthode intelligente insiste sur la pratique sans argent réel
+          au début pour éviter de perdre son capital par manque d'expérience. Steven a créé une
+          grande communauté basée sur la confiance et son expérience professionnelle. J'ai
+          énormément appris grâce à lui. Je recommande vivement son accompagnement pour
+          développer une vision professionnelle des marchés financiers.
+        </p>
+        <footer class="testimonial-name">Mario Jouzi · France</footer>
+      </article>
+
+      <!-- ===== END TESTIMONIAL CARDS ===== -->
 
     </div>
+  </section>
 
-    <!-- Honesty note — remove once real, compliant proof is in place -->
-    <p class="mx-auto mt-10 max-w-2xl text-center text-xs leading-relaxed text-paper/30">
-      [INTERNAL NOTE — REMOVE BEFORE LAUNCH] Only publish results you can verify
-      and that comply with your jurisdiction's advertising/financial-promotion rules.
+  <div class="mx-auto max-w-5xl px-6"><div class="hairline"></div></div>
+
+  <!-- ============================================================
+       3) MEET YOUR MENTOR
+       Centered, stacked: heading → color headshot → name → bio.
+       The headshot is INTENTIONALLY the one color photo on the page
+       (do NOT grayscale it). Bio is capped (~660px) for a comfortable
+       reading line length. Scales cleanly on mobile (photo on top).
+       ============================================================ -->
+  <section id="mentor" class="relative mx-auto max-w-3xl px-6 py-28 text-center sm:py-36">
+
+    <!-- Heading — DM Serif Display -->
+    <h2 class="font-display text-4xl uppercase leading-tight text-paper sm:text-6xl">
+      Meet Your Mentor
+    </h2>
+
+    <!-- Color headshot — contained portrait, thin border, soft shadow.
+         SWAP IMAGE: change the src below to use a different headshot. -->
+    <img src="assets/steven-headshot.png"
+         alt="Steven Khally, professional trader and founder of Treasures Funding, head-and-shoulders portrait"
+         class="mx-auto mt-12 w-56 rounded-2xl border border-paper/15 object-cover shadow-[0_10px_40px_rgba(0,0,0,0.55)] sm:w-64" />
+
+    <!-- Name -->
+    <p class="mt-8 font-display text-2xl text-paper sm:text-3xl">
+      Steven Khally
+    </p>
+
+    <!-- Bio — readable body font, capped line length, centered -->
+    <p class="mx-auto mt-5 max-w-[660px] text-base leading-relaxed text-paper/70">
+      Steven Khally is a professional trader with over 6 years of experience in the
+      financial markets and 4 years dedicated to trading education, having personally
+      mentored over 400 students through private coaching programs. He started out as a
+      broker in 2019 and has since served over 3,000 clients. In 2024, Steven founded
+      Treasures Funding as a consultation firm and later switched to personalized coaching
+      for people who want to make a career out of trading. His combination of active
+      trading experience, extensive client work, and proven educational track record makes
+      him a trusted mentor for aspiring professional traders.
     </p>
   </section>
 
@@ -390,27 +477,15 @@
         by thechartsengineer
       </p>
 
-      <!-- Risk disclosure — DRAFT boilerplate -->
-      <div class="mt-8 space-y-4 text-xs leading-relaxed text-paper/40">
-        <p class="font-medium uppercase tracking-[0.2em] text-paper/55">
-          [DRAFT — REPLACE WITH LAWYER-REVIEWED DISCLOSURE]
-        </p>
+      <!-- Risk disclosure — fine print -->
+      <div class="mt-8 text-xs leading-relaxed text-paper/40">
         <p>
           <strong class="text-paper/60">Risk Disclosure.</strong>
-          Trading financial instruments carries a substantial level of risk and may
-          not be suitable for all investors. The high degree of leverage available can
-          work against you as well as for you. Before deciding to trade, carefully
-          consider your investment objectives, level of experience, and risk appetite.
-          You could sustain a loss of some or all of your initial capital; do not trade
-          with money you cannot afford to lose.
-        </p>
-        <p>
-          Past performance is not indicative of future results, and no representation is
-          made that any account will or is likely to achieve profits or losses similar
-          to those discussed or shown. This program is educational in nature and does
-          not constitute financial, investment, or trading advice. by thechartsengineer
-          is not a registered broker-dealer, investment adviser, or financial advisor.
-          You are solely responsible for your own trading decisions.
+          Trading foreign exchange, metals, and indices carries a substantial risk of
+          loss and is not suitable for every investor. Past performance is not indicative
+          of future results. The content provided through this program is for educational
+          purposes only and does not constitute financial advice. You are solely
+          responsible for your own trading decisions.
         </p>
       </div>
 
@@ -517,6 +592,172 @@
   </div>
 
   <!-- ============================================================
+       TERMS & CONDITIONS MODAL  —  opened by the hero "Terms &
+       Conditions" link. Same treatment as the application modal
+       (dark card, dimmed overlay, X, click-outside & Esc to close),
+       but with a FIXED header and a SCROLLABLE body for the long text.
+
+       ✏️  UPDATE THE T&C TEXT HERE: edit the markup inside
+           <div id="termsContent"> below. Source of truth is
+           margin-control-terms-and-conditions.md — keep them in sync.
+           Format: section heading → <h3 class="terms-h">…</h3>,
+                   paragraph     → <p>…</p>,
+                   emphasis      → <strong>…</strong>.
+       ============================================================ -->
+  <div id="termsModal"
+       class="fixed inset-0 z-[100] hidden items-center justify-center px-4 py-6"
+       role="dialog" aria-modal="true" aria-labelledby="termsTitle">
+
+    <!-- Dimmed overlay (click-outside-to-close) -->
+    <div id="termsOverlay" class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
+
+    <!-- Card: flex column so the header stays put and only the body scrolls.
+         max-h caps it on tall content; scales down cleanly on mobile. -->
+    <div class="relative z-10 flex max-h-[88vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl
+                border border-paper/20 bg-ink
+                ring-1 ring-inset ring-paper/[0.06]
+                shadow-[0_8px_40px_rgba(0,0,0,0.6)]">
+
+      <!-- Fixed header — DM Serif Display title + close (X) -->
+      <div class="flex items-start justify-between gap-4 border-b border-paper/10 px-6 py-5 sm:px-8">
+        <h2 id="termsTitle" class="font-display text-2xl leading-[1.1] text-paper sm:text-3xl">
+          Terms &amp; Conditions
+        </h2>
+        <button id="termsClose" type="button" aria-label="Close"
+                class="-mr-1 flex h-8 w-8 flex-none items-center justify-center
+                       rounded-sm text-xl leading-none text-paper/50 transition-colors
+                       hover:text-paper focus:outline-none focus-visible:ring-1 focus-visible:ring-paper/50">
+          &times;
+        </button>
+      </div>
+
+      <!-- Scrollable body — clean readable body font (font-sans) -->
+      <div id="termsContent"
+           class="overflow-y-auto px-6 py-6 text-left text-sm leading-relaxed text-paper/70 sm:px-8">
+
+        <p class="mb-1 text-xs uppercase tracking-[0.15em] text-paper/45">Last updated: [DATE]</p>
+
+        <blockquote class="my-5 border-l-2 border-paper/25 pl-4 text-paper/55">
+          <strong class="text-paper/75">DRAFT — FOR REVIEW.</strong> This document is a starting
+          template, not legal advice. Have it reviewed by a qualified lawyer in your governing
+          jurisdiction before publishing or relying on it, particularly given the
+          financial/trading-education subject matter and international audience.
+        </blockquote>
+
+        <h3 class="terms-h">1. Introduction</h3>
+        <p>
+          These Terms &amp; Conditions ("Terms") govern your access to and use of the website and
+          the coaching program operated by [LEGAL ENTITY NAME / Treasures Funding] ("we", "us",
+          "our"), accessible at [WEBSITE URL] (the "Site"). By accessing the Site, submitting an
+          application, or enrolling in the program, you ("you", "the applicant", "the client")
+          agree to be bound by these Terms. If you do not agree, please do not use the Site or apply.
+        </p>
+
+        <h3 class="terms-h">2. The Program</h3>
+        <p>
+          The six-month coaching program (the "Program") provides trading education, mentorship,
+          and guidance. Enrollment is by application only and is offered at our sole discretion. We
+          reserve the right to accept or decline any application without obligation to provide a reason.
+        </p>
+
+        <h3 class="terms-h">3. No Financial Advice</h3>
+        <p>
+          All content, materials, coaching, and communications provided through the Site and the
+          Program are for <strong>educational and informational purposes only</strong>. Nothing we
+          provide constitutes financial, investment, tax, or legal advice, nor a recommendation or
+          solicitation to buy, sell, or hold any financial instrument. You are solely responsible
+          for your own trading and investment decisions. You should consult a licensed financial
+          advisor before making any financial decisions.
+        </p>
+
+        <h3 class="terms-h">4. Risk Disclosure</h3>
+        <p>
+          Trading foreign exchange, metals, indices, and other financial instruments carries a
+          <strong>substantial risk of loss</strong> and is not suitable for every investor. You may
+          lose some or all of your invested capital. Past performance — whether of any individual,
+          the mentor, or any student — is <strong>not indicative of future results</strong>. Any
+          examples, results, or testimonials presented are individual experiences and do not
+          represent a guarantee, promise, or typical outcome. We make no representation that you
+          will achieve any particular result.
+        </p>
+
+        <h3 class="terms-h">5. Testimonials</h3>
+        <p>
+          Testimonials on the Site reflect the real experiences of individual students. They are
+          not a guarantee that you or anyone else will obtain similar results. Individual results
+          vary based on effort, experience, market conditions, and many factors outside our control.
+        </p>
+
+        <h3 class="terms-h">6. Payments and Refunds</h3>
+        <p>
+          Program fees, payment terms, and any refund policy will be communicated during the
+          application and enrollment process. [SPECIFY REFUND POLICY HERE — e.g. whether
+          deposits/fees are refundable, any cooling-off period, conditions.] By enrolling, you agree
+          to the fees and payment schedule provided to you in writing at the time of enrollment.
+        </p>
+
+        <h3 class="terms-h">7. Applicant Information and Privacy</h3>
+        <p>
+          When you submit an application, we collect personal information you provide (such as your
+          name and email address) in order to review your application and contact you. We use this
+          information solely for the purpose of administering applications and the Program, and we
+          do not sell your information to third parties. For details on how we handle your data, see
+          our [Privacy Policy]. [If you serve EU/EEA applicants (e.g. France), GDPR obligations
+          likely apply — confirm with a lawyer.]
+        </p>
+
+        <h3 class="terms-h">8. Intellectual Property</h3>
+        <p>
+          All content provided through the Site and the Program — including materials, frameworks,
+          recordings, and communications — is our intellectual property or used with permission. You
+          may not copy, reproduce, redistribute, resell, or share Program materials with any third
+          party without our written consent.
+        </p>
+
+        <h3 class="terms-h">9. Acceptable Use</h3>
+        <p>
+          You agree to use the Site and Program lawfully and respectfully. You will not misuse the
+          Site, attempt to disrupt its operation, or use Program content to harm others or
+          misrepresent your association with us.
+        </p>
+
+        <h3 class="terms-h">10. Limitation of Liability</h3>
+        <p>
+          To the maximum extent permitted by law, we shall not be liable for any direct, indirect,
+          incidental, consequential, or special damages — including trading or investment losses —
+          arising from your use of the Site, the Program, or any content provided. The Program is
+          provided "as is" without warranties of any kind, express or implied.
+        </p>
+
+        <h3 class="terms-h">11. No Guarantee of Outcomes</h3>
+        <p>
+          We do not guarantee any specific income, profit, trading performance, or career outcome.
+          Your results depend on your own actions, discipline, and factors beyond our control.
+        </p>
+
+        <h3 class="terms-h">12. Changes to These Terms</h3>
+        <p>
+          We may update these Terms from time to time. Changes take effect when posted to the Site
+          with an updated "Last updated" date. Your continued use of the Site after changes
+          constitutes acceptance.
+        </p>
+
+        <h3 class="terms-h">13. Governing Law</h3>
+        <p>
+          These Terms are governed by the laws of [GOVERNING JURISDICTION — e.g. Lebanon / UAE /
+          other]. Any disputes shall be subject to the exclusive jurisdiction of the courts of
+          [JURISDICTION].
+        </p>
+
+        <h3 class="terms-h">14. Contact</h3>
+        <p class="mb-0">
+          For questions about these Terms, contact us at [CONTACT EMAIL].
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
        SCRIPTS  —  vanilla JS, no dependencies
        Footer year + application modal logic.
        ============================================================ -->
@@ -612,6 +853,34 @@
           submitLabel.textContent = 'Submit Application';
           showMessage(err.message || 'Something went wrong. Please try again.', true);
         }
+      });
+    })();
+
+    // ---- Terms & Conditions modal ----
+    (function () {
+      const modal    = document.getElementById('termsModal');
+      const openBtn  = document.getElementById('termsBtn');
+      const closeBtn = document.getElementById('termsClose');
+      const overlay  = document.getElementById('termsOverlay');
+      const content  = document.getElementById('termsContent');
+
+      function openModal() {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        content.scrollTop = 0; // always open at the top
+      }
+      function closeModal() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = '';
+      }
+
+      openBtn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+      overlay.addEventListener('click', closeModal);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeModal();
       });
     })();
   </script>
