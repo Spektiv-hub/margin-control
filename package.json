@@ -2,9 +2,6 @@
   "name": "margin-control",
   "version": "1.0.0",
   "private": true,
-  "description": "by thechartsengineer — application-only trading coaching landing page with a Resend-backed application modal.",
-  "type": "module",
-  "dependencies": {
-    "resend": "^4.0.1"
-  }
+  "description": "by thechartsengineer — application-only trading coaching landing page. Fully static: no build step, no dependencies, no serverless functions. Enrollment goes through a WhatsApp click-to-chat link.",
+  "type": "module"
 }
